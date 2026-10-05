@@ -117,11 +117,21 @@ def build_chart(op_name, structures):
 
 def generate_html(operations):
     chart_divs = []
+    img_dir = REPO_DIR / "images"
+    img_dir.mkdir(exist_ok=True)
+
     for i, (op_name, structures) in enumerate(operations.items()):
         fig = build_chart(op_name, structures)
         chart_divs.append(
             fig.to_html(full_html=False, include_plotlyjs=(i == 0))
         )
+        # Export static SVG for Canvas page embedding
+        svg_name = op_name.lower().replace(" ", "_").replace("/", "_") + ".svg"
+        try:
+            fig.write_image(str(img_dir / svg_name), format="svg", width=900, height=450)
+            print(f"  SVG: images/{svg_name}")
+        except Exception:
+            pass  # kaleido not installed -- skip SVG export
 
     html = f"""<!DOCTYPE html>
 <html lang="en">
